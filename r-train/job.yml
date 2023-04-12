@@ -1,0 +1,19 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+# the Rscript command goes in the command key below. Here you also specify 
+# which parameters are passed into the R script and can reference the input
+# keys and values further below
+# Modify any value shown below <IN-BRACKETS-AND-CAPS> (remove the brackets)
+code: src
+command: >
+  Rscript r-source.R
+  --data_file ${{inputs.datafile}}  
+  --output_dir ${{inputs.output}}
+inputs:
+  datafile: 
+    type: uri_file
+    path: azureml:pv-csv-1@latest
+  output: './outputs'  # this is the output file path
+environment: azureml:r-env@latest
+compute: azureml:ae-ml-vm01
+experiment_name: Customer-Load-Forecasting-2023-Mar
+description: Experimanting with AR(p) models using R to forecast Customer Load profiles

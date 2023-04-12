@@ -1,0 +1,31 @@
+## Open a TERMINAL CONSOLE & execute the following commands
+#
+az login --identity
+#
+az upgrade
+# If you have access to multiple subscriptions, then best to be specific:
+az account set --subscription "968d7e19-cd97-44d8-ace7-b8a31a2f8355"
+#
+az configure --defaults group=$CI_RESOURCE_GROUP workspace=$CI_WORKSPACE
+#
+cd r-deploy-azureml
+WORKSPACE=$(az config get --query "defaults[?name == 'workspace'].value" -o tsv)
+ACR_NAME=$(az ml workspace show -n $WORKSPACE --query container_registry -o tsv | cut -d'/' -f9-)
+IMAGE_TAG=${ACR_NAME}.azurecr.io/r-deploy-image
+
+az acr build ./docker-context -t $IMAGE_TAG -r $ACR_NAME
+
+##
+
+# Now create the Endpoint:
+az ml online-endpoint create -f endpoint.yaml
+
+# Now create the deployment:
+# (Note: First we need to get the $IMAGE_TAG value from the Endpoint & write it into the Deployment.yaml)
+# (This should be automated, but...  pipelines later)
+echo $IMAGE_TAG
+
+az ml online-deployment create -f deployment.yaml --all-traffic --skip-script-validation
+
+
+

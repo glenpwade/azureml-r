@@ -1,0 +1,21 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: Cust-load-forecast
+endpoint_name: customer0load0forecast0ep
+code_configuration:
+  code: ./src
+  scoring_script: plumber.R
+model: azureml:Cust_Load_Fcst_Model@latest
+environment:
+  image: 0f9a2bbd5b0342ada000dcf73aa0ab79.azurecr.io/r-deploy-image
+  inference_config:
+    liveness_route:
+      port: 8000
+      path: /live
+    readiness_route:
+      port: 8000
+      path: /ready
+    scoring_route:
+      port: 8000
+      path: /score
+instance_type: Standard_DS3_v2
+instance_count: 1
